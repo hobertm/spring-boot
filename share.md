@@ -361,7 +361,7 @@ public class ConsumerMovieRibbonApplication {
 ```
 
 TestConfiguration  
-@ExcludeFromComponentScan打上自定义注解  
+@ExcludeFromComponentScan防止启动时默认配置被覆盖  
 
 ```java
 package com.itmuch.cloud;
@@ -391,7 +391,9 @@ public class TestConfiguration {
 
 - config server  
 
-microservice-config-client-refresh  ConfigClientController
+microservice-config-client-refresh  ConfigClientController  
+@RefreshScope支持刷新配置  
+@Value("${profile}")获取配置  
 
 ```java
 package com.itmuch.cloud;

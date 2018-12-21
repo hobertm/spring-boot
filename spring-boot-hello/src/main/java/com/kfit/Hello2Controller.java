@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class Hello2Controller {
 
 	
-	@RequestMapping("/helloNew")
-	public String helloNew(){
+	@RequestMapping("/helloNew5")
+	public String helloNew5(){
 		return "helloNew";
 	}
 
-    @RequestMapping("/helloNew2")
-    public String helloNew2(){
+    @RequestMapping("/helloNew3")
+    public String helloNew3(){
         return "helloNew";
     }
 	
