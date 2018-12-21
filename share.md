@@ -431,3 +431,115 @@ spring:
   application:
     name: foobar
 ```
+
+
+- turbine hystrix  
+
+microservice-hystrix-turbine  
+
+```java
+package com.itmuch.cloud;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.turbine.EnableTurbine;
+
+@EnableTurbine
+@SpringBootApplication
+public class TurbineApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(TurbineApplication.class, args);
+  }
+}
+
+```
+
+appConfig配置监控的项目  
+
+```yaml
+server:
+  port: 8031
+spring:
+  application:
+    name: microservice-hystrix-turbine
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://user:password123@localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
+turbine:
+  aggregator:
+    clusterConfig: default
+  appConfig: microservice-consumer-movie-ribbon-with-hystrix,microservice-consumer-movie-feign-with-hystrix
+  clusterNameExpression: "'default'"
+```
+
+
+microservice-consumer-movie-ribbon-with-hystrix  
+@HystrixCommand(fallbackMethod = "findByIdFallback")
+
+```java
+
+package com.itmuch.cloud.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.itmuch.cloud.entity.User;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+@RestController
+public class MovieController {
+  @Autowired
+  private RestTemplate restTemplate;
+
+  @GetMapping("/movie/{id}")
+  @HystrixCommand(fallbackMethod = "findByIdFallback")
+  public User findById(@PathVariable Long id) {
+    return this.restTemplate.getForObject("http://microservice-provider-user/simple/" + id, User.class);
+  }
+
+  public User findByIdFallback(Long id) {
+    User user = new User();
+    user.setId(0L);
+    return user;
+  }
+}
+
+```
+
+
+@EnableCircuitBreaker配置短路器  
+
+```java
+package com.itmuch.cloud;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+@EnableEurekaClient
+@EnableCircuitBreaker
+public class ConsumerMovieRibbonApplication {
+
+  @Bean
+  @LoadBalanced
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
+  }
+
+  public static void main(String[] args) {
+    SpringApplication.run(ConsumerMovieRibbonApplication.class, args);
+  }
+}
+
+```

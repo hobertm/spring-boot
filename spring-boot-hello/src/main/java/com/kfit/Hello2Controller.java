@@ -12,8 +12,8 @@ public class Hello2Controller {
 		return "helloNew";
 	}
 
-    @RequestMapping("/helloNew3")
-    public String helloNew3(){
+    @RequestMapping("/helloNew4")
+    public String helloNew4(){
         return "helloNew";
     }
 	
